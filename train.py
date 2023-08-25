@@ -25,21 +25,25 @@ from src.preprocess import preprocess_pipeline
 
 # 로그 들어갈 위치
 # TODO: 로그를 정해진 로그 경로에 logs.log로 저장하도록 설정
+logger = set_logger(os.path.join(LOG_FILEPATH, "logs.log"))
 
 sys.excepthook = handle_exception
 warnings.filterwarnings(action="ignore")
 
 
 if __name__ == "__main__":
+    logger.info("Loading data...")
     train_df = pd.read_csv(os.path.join(DATA_PATH, "house_rent_train.csv"))
 
     _X = train_df.drop(["rent", "area_locality", "posted_on"], axis=1)
     y = np.log1p(train_df["rent"])
 
+    logger.info("Pipeline..")
     X = preprocess_pipeline.fit_transform(X=_X, y=y)
     # TODO: X=_X, y=y로 전처리 파이프라인을 적용해 X에 저장
 
     # Data storage - 피처 데이터 저장
+    logger.info("save feature..")
     if not os.path.exists(os.path.join(DATA_PATH, "storage")):
         os.makedirs(os.path.join(DATA_PATH, "storage"))
     X.assign(rent=y).to_csv(
